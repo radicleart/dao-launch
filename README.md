@@ -1,18 +1,15 @@
-# create-svelte
+# stxeco-launcher
 
-Everything you need to build a Svelte project, powered by [`create-svelte`](https://github.com/sveltejs/kit/tree/main/packages/create-svelte).
+Fill in the template, click launch and use your new decentralised company to take payments and
+offer services. This is a small ui designed to work as part of the stx.eco site.
 
-## Creating a project
+See also;
 
-If you're seeing this, you've probably already done this step. Congrats!
+- [stxeco-launcher](https://github.com/radicleart/stxeco-launcher)
+- [ai-flow](https://github.com/radicleart/ai-flow)
+- [bitcoin-dao](https://github.com/radicleart/bitcoin-dao)
 
-```bash
-# create a new project in the current directory
-npm create svelte@latest
-
-# create a new project in my-app
-npm create svelte@latest my-app
-```
+Note: this is experimental code - use at your own risk
 
 ## Developing
 
@@ -34,5 +31,3 @@ npm run build
 ```
 
 You can preview the production build with `npm run preview`.
-
-> To deploy your app, you may need to install an [adapter](https://kit.svelte.dev/docs/adapters) for your target environment.
