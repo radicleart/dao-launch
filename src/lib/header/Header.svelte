@@ -51,7 +51,7 @@
  	}
 
 	const loginCallback = async () => {
-		await initApplication($sessionStore, true)
+		await initApplication($sessionStore.userSettings)
 		setTimeout(function() {
 			dispatch('login_event');
 			componentKey++;
