@@ -3,8 +3,8 @@
 	import { createEventDispatcher } from "svelte";
 	import Brand from './Brand.svelte'
 	import { afterNavigate, goto } from "$app/navigation";
-	import { initApplication, loginStacks } from '$lib/stacks_connect'
-	import { logUserOut, loggedIn } from '$lib/stacks_connect'
+	import { initApplication, loginStacks } from '$lib/stacks_helper'
+	import { logUserOut, loggedIn } from '$lib/stacks_helper'
 	import AccountDropdown from './AccountDropdown.svelte'
 	import { CONFIG, setConfigByUrl } from '$lib/config';
 	import { page } from '$app/stores';
@@ -27,7 +27,6 @@
 		if (net === 'mainnet') net = 'testnet';
 		else net = 'mainnet'
 		setConfigByUrl();
-		await fetchSbtcBalance($sessionStore, true);
 		const url = new URL(location.href);
 		if (import.meta.env.MODE === 'simnet') {
 			url.searchParams.set('chain', 'testnet');

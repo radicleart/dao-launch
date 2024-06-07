@@ -1,16 +1,15 @@
 <script lang="ts">
-	import { Button, Dropdown, DropdownItem } from 'flowbite-svelte'
-	import { Icon, ClipboardDocument, ArrowRight } from "svelte-hero-icons"
+	import { Dropdown, DropdownItem } from 'flowbite-svelte'
+	import { Icon, ClipboardDocument } from "svelte-hero-icons"
 	import LogoSBTC from '$lib/ui/LogoSBTC.svelte';
 	import LogoBitcoin from '$lib/ui/LogoBitcoin.svelte';
 	import StacksIcon from '$lib/ui/StacksIcon.svelte';
-	import { loggedIn, makeFlash } from "$lib/stacks_connect";
+	import { makeFlash } from "$lib/stacks_helper";
 	import { CONFIG } from '$lib/config';
 	import { createEventDispatcher } from "svelte";
 	import { truncate } from '$lib/utils'
 	import { sessionStore } from '$stores/stores'
 	import { fmtSatoshiToBitcoin, fmtMicroToStx, bitcoinBalanceFromMempool } from '$lib/utils'
-	import { goto } from '$app/navigation';
 	import { disconnect } from '@stacks/connect';
 	import type { AddressObject } from '$types/local_types';
 	import CopyClipboard from '$lib/components/utils/CopyClipboard.svelte';

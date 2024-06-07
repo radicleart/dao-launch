@@ -1,6 +1,6 @@
 <script lang="ts">
-	import ProposalStageUpdate from "$lib/components/ProposalStageUpdate.svelte";
-	import PageIntro from "$lib/components/PageIntro.svelte";
+	import ProposalStageUpdate from "$lib/components/utils/ProposalStageUpdate.svelte";
+	import PageIntro from "$lib/components/utils/PageIntro.svelte";
 	import { onMount } from "svelte";
 	
 	let message = 'STX ECO is the all-in-one voting platform where the Stacks community can weigh in on major protocol changes';

@@ -16,8 +16,10 @@ export type StacksInfo = {
   stacks_tip_height: number;
 }
 export type SbtcUserSettingI = {
+  executiveTeamMember: boolean;
+  govTokens?: GovernanceData;
   debugMode: boolean;
-  testAddresses: boolean;
+  testAddress?: string;
   currency: {
     cryptoFirst: boolean;
     myFiatCurrency: ExchangeRate;

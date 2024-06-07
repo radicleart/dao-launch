@@ -2,21 +2,21 @@ import { CONFIG } from '$lib/config';
 import type { DaoTemplate } from '$types/local_types';
 
 export async function fetchStacksInfo() {
-  const path = `${CONFIG.VITE_API_STACKS}/dao/stacks-info`;
+  const path = `${CONFIG.VITE_API_STACKS}/v2/info`;
   const response = await fetch(path);
   const res = await response.json();
   return res;
 }
 
 export async function getPoxInfo() {
-  const path = `${CONFIG.VITE_API_STACKS}/pox/info`;
+  const path = `${CONFIG.VITE_API_STACKS}/v2/pox`;
   const response = await fetch(path);
   const res = await response.json();
   return res;
 }
 
-export async function fetchUiInit() {
-  const path = `${CONFIG.VITE_API_STACKS}/sbtc/init-ui`;
+export async function fetchExchangeRates() {
+  const path = `${CONFIG.VITE_API_STXECO}/bridge-api/v1/btc/tx/rates`;
   try {
     const response = await fetch(path);
     const res = await response.json();

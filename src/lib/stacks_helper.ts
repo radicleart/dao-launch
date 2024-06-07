@@ -5,7 +5,7 @@ import { c32address, c32addressDecode } from 'c32check';
 import { StacksTestnet, StacksMainnet, StacksMocknet } from '@stacks/network';
 import { AppConfig, UserSession, showConnect, getStacksProvider, type StacksProvider } from '@stacks/connect';
 import { sessionStore } from '$stores/stores';
-import { fetchStacksInfo, fetchUiInit, getPoxInfo } from './backend_api';
+import { fetchStacksInfo, fetchExchangeRates, getPoxInfo } from './backend_api';
 import type { AddressObject, ExchangeRate, PoxInfo, SbtcUserSettingI, StacksInfo } from '$types/local_types';
 
 const appConfig = new AppConfig(['store_write', 'publish_data']);
@@ -193,15 +193,15 @@ export function verifySBTCAmount(amount:number, balance:number, fee:number) {
 	}
 }
   
-export async function initApplication(userSettings:SbtcUserSettingI) {
+export async function initApplication(userSettings?:SbtcUserSettingI) {
 	try {
 		const stacksInfo = await fetchStacksInfo() || {} as StacksInfo;
 		const poxInfo = await getPoxInfo()
-		const data = await fetchUiInit();
-		const settings = userSettings || {} as SbtcUserSettingI
-		const rateNow = data?.exchangeRates?.find((o:any) => o.currency === 'USD') || {currency: 'USD'} as ExchangeRate;
+		const exchangeRates = await fetchExchangeRates();
+		const settings = userSettings || defaultSettings()
+		const rateNow = exchangeRates?.find((o:any) => o.currency === 'USD') || {currency: 'USD'} as ExchangeRate;
 		settings.currency = {
-			myFiatCurrency: rateNow,
+			myFiatCurrency: rateNow || defaultExchangeRate(),
 			cryptoFirst: true,
 			denomination: 'USD'
 		}
@@ -217,7 +217,7 @@ export async function initApplication(userSettings:SbtcUserSettingI) {
 					conf.keySets = { 'mainnet': {} as AddressObject };
 				}
 			}
-			conf.exchangeRates = data?.rates || [] as Array<ExchangeRate>;
+			conf.exchangeRates = exchangeRates || [] as Array<ExchangeRate>;
 			conf.userSettings = settings
 			return conf;
 		});
@@ -239,3 +239,29 @@ export async function initApplication(userSettings:SbtcUserSettingI) {
 		});
 	}
 }
+
+function defaultSettings():SbtcUserSettingI {
+	return {
+		debugMode: false,
+		executiveTeamMember: false,
+		currency: {
+		  cryptoFirst: true,
+		  myFiatCurrency: defaultExchangeRate(),
+		  denomination: 'USD',
+		}
+	}
+}
+
+function defaultExchangeRate():ExchangeRate {
+	return {
+		_id: '',
+		currency: 'USD',
+		fifteen: 0,
+		last: 0,
+		buy: 0,
+		sell: 0,
+		symbol: 'USD',
+		name: 'BTCUSD'			  
+	}
+  }
+  
