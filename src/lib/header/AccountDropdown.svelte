@@ -13,7 +13,7 @@
 	import { goto } from '$app/navigation';
 	import { disconnect } from '@stacks/connect';
 	import type { AddressObject } from '$types/local_types';
-	import CopyClipboard from '$lib/Components/CopyClipboard.svelte';
+	import CopyClipboard from '$lib/components/utils/CopyClipboard.svelte';
 	const dispatch = createEventDispatcher();
 
 	const account:AddressObject = $sessionStore.keySets[CONFIG.VITE_NETWORK];

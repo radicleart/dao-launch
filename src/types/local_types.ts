@@ -41,6 +41,8 @@ export type ExchangeRate = {
 }
 
 export type DaoTemplate = {
+  deployer: string;
+  projectName: string;
   addresses: Array<string>;
   tokenName?: string;
   tokenSymbol?: string;
