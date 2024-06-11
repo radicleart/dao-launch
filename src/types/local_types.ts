@@ -2,13 +2,45 @@
 export type SessionStore = {
   name: string;
   loggedIn: boolean,
+  balances?: StacksBalance,
   keySets: { [key: string]: AddressObject; };
   userSettings:SbtcUserSettingI;
   poxInfo:PoxInfo,
   exchangeRates: Array<ExchangeRate>
   stacksInfo: StacksInfo;
-
 };
+
+export type StacksBalance = {
+  stx: {
+    balance: number;
+    total_sent: number;
+    total_received: number;
+    total_fees_sent: number;
+    total_miner_rewards_received: number;
+    lock_tx_id: string;
+    locked: number;
+    lock_height: number;
+    burnchain_lock_height: number;
+    burnchain_unlock_height: number;
+  },
+  fungible_tokens: Array<FungibleToken>,
+  non_fungible_tokens: Array<NonFungibleToken>
+}
+export type FungibleToken = {
+  identifier: {
+    balance: number;
+    total_sent: number;
+    total_received: number;
+  };
+}
+export type NonFungibleToken = {
+  identifier: {
+    count: number;
+    total_sent: number;
+    total_received: number;
+  };
+}
+
 export type StacksInfo = {
   burn_block_height: number;
   server_version: string;

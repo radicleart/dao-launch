@@ -1,12 +1,12 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
-import { CONFIG } from '$lib/config';
 import { c32address, c32addressDecode } from 'c32check';
 import { StacksTestnet, StacksMainnet, StacksMocknet } from '@stacks/network';
 import { AppConfig, UserSession, showConnect, getStacksProvider, type StacksProvider } from '@stacks/connect';
 import { sessionStore } from '$stores/stores';
-import { fetchStacksInfo, fetchExchangeRates, getPoxInfo } from './backend_api';
+import { fetchStacksInfo, fetchExchangeRates, getPoxInfo, getStacksBalances } from './stacks_api';
 import type { AddressObject, ExchangeRate, PoxInfo, SbtcUserSettingI, StacksInfo } from '$types/local_types';
+import { getConfig } from '$stores/store_helpers';
 
 const appConfig = new AppConfig(['store_write', 'publish_data']);
 export const userSession = new UserSession({ appConfig }); // we will use this export from other files
@@ -17,7 +17,7 @@ export const minimumDeposit = 10000
 export const revealPayment = 10001
 
 export function getStacksNetwork() {
-	const network = CONFIG.VITE_NETWORK;
+	const network = getConfig().VITE_NETWORK;
 	let stxNetwork:StacksMainnet|StacksTestnet;
 	if (network === 'devnet') stxNetwork = new StacksMocknet();
 	else if (network === 'testnet') stxNetwork = new StacksTestnet();
@@ -115,6 +115,15 @@ export function loggedIn():boolean {
 	}
 }
 
+export function getStacksAddress() {
+	if (loggedIn()) {
+		const userData = userSession.loadUserData();
+		const stxAddress = (getConfig().VITE_NETWORK === 'testnet' || getConfig().VITE_NETWORK === 'devnet') ? userData.profile.stxAddress.testnet : userData.profile.stxAddress.mainnet;
+		return stxAddress
+	}
+	return
+}
+
 export async function loginStacks(callback:any) {
 	try {
 		const provider = getProvider()
@@ -161,15 +170,15 @@ export function verifyStacksPricipal(stacksAddress?:string) {
 	}
 	try {
 	  const decoded = decodeStacksAddress(stacksAddress.split('.')[0]);
-	  if ((CONFIG.VITE_NETWORK === 'testnet' || CONFIG.VITE_NETWORK === 'devnet') && decoded[0] !== 26) {
+	  if ((getConfig().VITE_NETWORK === 'testnet' || getConfig().VITE_NETWORK === 'devnet') && decoded[0] !== 26) {
 		throw new Error('Please enter a valid stacks blockchain testnet address');
 	  }
-	  if (CONFIG.VITE_NETWORK === 'mainnet' && decoded[0] !== 22) {
+	  if (getConfig().VITE_NETWORK === 'mainnet' && decoded[0] !== 22) {
 		throw new Error('Please enter a valid stacks blockchain mainnet address');
 	  }
 	  return stacksAddress;
 	  } catch (err:any) {
-		  throw new Error('Invalid stacks principal - please enter a valid ' + CONFIG.VITE_NETWORK + ' account or contract principal.');
+		  throw new Error('Invalid stacks principal - please enter a valid ' + getConfig().VITE_NETWORK + ' account or contract principal.');
 	  }
 }
 
@@ -205,14 +214,20 @@ export async function initApplication(userSettings?:SbtcUserSettingI) {
 			cryptoFirst: true,
 			denomination: 'USD'
 		}
+		if (loggedIn()) {
+			const balances = await getStacksBalances()
+		}
 	
 		sessionStore.update((conf) => {
 			conf.stacksInfo = stacksInfo
 			conf.poxInfo = poxInfo
+			conf.balances = balances
 			conf.loggedIn = userSession.isUserSignedIn();
-			if (!conf.keySets || !conf.keySets[CONFIG.VITE_NETWORK]) {
-				if (CONFIG.VITE_NETWORK === 'testnet'|| CONFIG.VITE_NETWORK === 'regtest') {
+			if (!conf.keySets || !conf.keySets[getConfig().VITE_NETWORK]) {
+				if (getConfig().VITE_NETWORK === 'testnet') {
 					conf.keySets = { 'testnet': {} as AddressObject };
+				} else if (getConfig().VITE_NETWORK === 'regtest') {
+					conf.keySets = { 'regtest': {} as AddressObject };
 				} else {
 					conf.keySets = { 'mainnet': {} as AddressObject };
 				}
@@ -226,8 +241,8 @@ export async function initApplication(userSettings?:SbtcUserSettingI) {
 			conf.stacksInfo = {} as StacksInfo
 			conf.poxInfo = {} as PoxInfo
 			conf.loggedIn = userSession.isUserSignedIn();
-			if (!conf.keySets || !conf.keySets[CONFIG.VITE_NETWORK]) {
-				if (CONFIG.VITE_NETWORK === 'testnet'|| CONFIG.VITE_NETWORK === 'regtest') {
+			if (!conf.keySets || !conf.keySets[getConfig().VITE_NETWORK]) {
+				if (getConfig().VITE_NETWORK === 'testnet'|| getConfig().VITE_NETWORK === 'regtest') {
 					conf.keySets = { 'testnet': {} as AddressObject };
 				} else {
 					conf.keySets = { 'mainnet': {} as AddressObject };

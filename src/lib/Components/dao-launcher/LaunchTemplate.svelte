@@ -1,19 +1,21 @@
 <script lang="ts">
 	import Placeholder from '$lib/components/utils/Placeholder.svelte';
-	import { launchDao } from '$lib/backend_api';
-	import { CONFIG } from '$lib/config';
+	import { constructDao, launchDao } from '$lib/backend_api';
+	import { fetchDataVar, lookupContract } from '$lib/stacks_api';
   import Banner from '$lib/ui/Banner.svelte';
 	import NakamotoBackground from '$lib/ui/NakamotoBackground.svelte';
 	import NakamotoShield from '$lib/ui/NakamotoShield.svelte';
 	import { sessionStore } from '$stores/stores';
 	import type { DaoTemplate } from '$types/local_types';
 	import { onMount } from 'svelte';
+	import { deployer_roles } from '$lib/dao_helper';
+	import { configStore } from '$stores/stores_config';
 
   let inited = false;
   let errorMessage:string = '';
   let result:string|undefined = undefined;
-  const account = $sessionStore.keySets[CONFIG.VITE_NETWORK]
-  $: explorerUrl = `${CONFIG.VITE_API_STACKS}/txid/${result}?chain=${CONFIG.VITE_NETWORK}`;
+  const account = $sessionStore.keySets[$configStore.VITE_NETWORK]
+  $: explorerUrl = `${$configStore.VITE_API_STACKS}/txid/${result}?chain=${$configStore.VITE_NETWORK}`;
   
   const template:DaoTemplate = {
     deployer: 'ST3NBRSFKX28FQ2ZJ1MAKX58HKHSDGNV5N7R21XCP',
@@ -34,17 +36,32 @@
     template.addresses.push('ST2JHG361ZXG51QTKY2NQCVBPPRRE2KZB1HR05NNC')
   }
 
+  const construct = async(address:string) => {
+    const constructed = await constructDao(address)
+  }
+
   const launch = async () => {
     let key: keyof typeof template;
     for (key in template) {
       const value = template[key];
       if (!value || value.length === 0) errorMessage += '<br/>Value is required for ' + key
     }
+    const c = await lookupContract(`${template.deployer}.bitcoin-dao`)
+    if (c && c.tx_id) errorMessage = 'Contracts already deployed for this deployer: ' + template.deployer
     if (errorMessage) return
     const result = await launchDao(template)
   }
 
+  const roles = deployer_roles
   onMount(async () => {
+    for (let obj of roles) {
+      const c = await lookupContract(`${obj.stx_address}.bitcoin-dao`) 
+      if (c && c.tx_id) {
+        obj.deployed = true
+        const constructed = await fetchDataVar(template.deployer, 'bitcoin-dao', 'executive')
+        obj.constructed = constructed && constructed.indexOf('.') > -1
+      }
+    }
     inited = true
   })
 
@@ -66,13 +83,32 @@
         <div class="mb-4 rounded-lg relative bg-[#E6E4E2] px-6 py-6 space-y-3 max-w-xl">
           <div>
             <div class="flex flex-col gap-y-4">
-              <div class="flex justify-between">
+              <div class="flex flex-col">
                 <div class="text-xl">
                   Template values
                 </div>
-                <div class="text-sm">
-                  <a href="/" on:click|preventDefault={() => useRegtest()}>use regtest values</a>
-                </div>
+                <div class="w-full flex flex-col gap-y-4 justify-start border border-gray-700 rounded-lg my-4 p-3">
+                  {#each roles as role}
+                  {#if role.deployed}
+                  <div>
+                    <div class="">
+                      Contract: {role.stx_address} 
+                    </div>
+                    <div>
+                      is deployed 
+                      {#if role.constructed}
+                      and constructed
+                      {:else}
+                      <button on:click={() => {errorMessage = ''; construct(role.stx_address)}} class="justify-center w-[150px] md:inline-flex items-center gap-x-1.5 bg-success-01 px-4 py-2 rounded-xl border border-black bg-black text-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary-500/50">
+                        START DAO
+                      </button>
+                      {/if}
+                    </div>
+                  </div>
+                  {/if}
+                {/each}
+              </div>
+  
               </div>
             {#if result}
               <div class="mb-3 max-w-xl">
@@ -80,7 +116,7 @@
               </div>
               {:else}
               <div class="mb-3 max-w-xl">
-                <Banner bannerType={'info'} message={'Ensure the addresses are correct for network `' + CONFIG.VITE_NETWORK + '`'} />
+                <Banner bannerType={'info'} message={'Ensure the addresses are correct for network `' + $configStore.VITE_NETWORK + '`'} />
               </div>
 
               <div class="bottom-1 pb-5 mb-5 w-full flex flex-col justify-start">
@@ -88,9 +124,23 @@
                   <input id="project-name" class="rounded-lg p-2 text-black border-gray-800" bind:value={template.projectName} type="text" aria-describedby="projectName"/>
               </div>
 
-              <div class=" w-full flex flex-col justify-start">
-                  <label for="deployer" class="text-blue-800">Deployer</label>
-                  <input id="deployer" class="rounded-lg p-2 text-black border-gray-800" bind:value={template.deployer} type="text" aria-describedby="deployer"/>
+              <div class="w-full flex flex-col justify-start mb-5 text-blue-800">
+                <label for="deployer">Deployer <span class="text-sm">(devnet wallet that will deploy and construct your dao)</span></label>
+                <select class="text-black h-10 w-full px-3 border rounded-lg" bind:value={template.deployer}>
+                  {#each deployer_roles as deployer}
+                    <option value={deployer.stx_address}>{deployer.stx_address}</option>
+                  {/each}
+                </select>
+              </div>
+
+
+              <div class="flex justify-between text-blue-800">
+                <div class="text-xl">
+                  
+                </div>
+                <div class="text-sm">
+                  <a href="/" on:click|preventDefault={() => useRegtest()}>use regtest values</a>
+                </div>
               </div>
 
               {#each Array(4) as _, i}

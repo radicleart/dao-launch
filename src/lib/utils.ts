@@ -1,10 +1,10 @@
-import { CONFIG } from '$lib/config';
 import * as btc from '@scure/btc-signer';
 import * as secp from '@noble/secp256k1';
 import { hex } from '@scure/base';
 import { hash160 } from '@stacks/transactions';
 import { hashSha256Sync } from '@stacks/encryption';
 import type { AddressMempoolObject, SbtcClarityEvent } from 'sbtc-bridge-lib';
+import { getConfig } from '$stores/store_helpers';
 
 export const COMMS_ERROR = 'Error communicating with the server. Please try later.'
 export const smbp = 900
@@ -36,14 +36,14 @@ function getVersionAsType(version:string) {
 }
 const ADDRESS_VERSION_P2PKH =new Uint8Array([0])
 const ADDRESS_VERSION_P2SH = new Uint8Array([1])
-const ADDRESS_VERSION_P2WPKH = new Uint8Array([2])
-const ADDRESS_VERSION_P2WSH = new Uint8Array([3])
+//const ADDRESS_VERSION_P2WPKH = new Uint8Array([2])
+//const ADDRESS_VERSION_P2WSH = new Uint8Array([3])
 const ADDRESS_VERSION_NATIVE_P2WPKH = new Uint8Array([4])
 const ADDRESS_VERSION_NATIVE_P2WSH = new Uint8Array([5])
 const ADDRESS_VERSION_NATIVE_P2TR = new Uint8Array([6])
 
 export function getAddressFromHashBytes(hashBytes:string, version:string) {
-  const net = (CONFIG.VITE_NETWORK === 'testnet') ? btc.TEST_NETWORK : btc.NETWORK
+  const net = (getConfig().VITE_NETWORK === 'testnet') ? btc.TEST_NETWORK : btc.NETWORK
   if (!version.startsWith('0x')) version = '0x' + version
   if (!hashBytes.startsWith('0x')) hashBytes = '0x' + hashBytes
   let btcAddr:string|undefined;
@@ -72,7 +72,7 @@ export function getAddressFromHashBytes(hashBytes:string, version:string) {
 }
 
 export function getHashBytesFromAddress(address:string):{version:string, hashBytes:string }|undefined {
-  const net = (CONFIG.VITE_NETWORK === 'testnet') ? btc.TEST_NETWORK : btc.NETWORK
+  const net = (getConfig().VITE_NETWORK === 'testnet') ? btc.TEST_NETWORK : btc.NETWORK
   let outScript:any;
   try {
     const addr:any = btc.Address(net);
@@ -145,7 +145,7 @@ export function tsToDate(updated:number|undefined) {
 }
 
 export function isSupported(address:string) {
-  const network = CONFIG.VITE_NETWORK;
+  const network = getConfig().VITE_NETWORK;
   const msg = 'Please enter a valid ' + network + ' bitcoin address.'
   if (!address || address.length < 10) {
     throw new Error(msg);
@@ -177,7 +177,7 @@ export function isSupported(address:string) {
 }
 
 export function getNet() {
-  return (CONFIG.VITE_NETWORK === 'testnet') ? btc.TEST_NETWORK : btc.NETWORK
+  return (getConfig().VITE_NETWORK === 'testnet') ? btc.TEST_NETWORK : btc.NETWORK
   //if (network === 'litecoin') return { pubKeyHash: 0x30, scriptHash: 0x32 };
   //if (network === 'testnet') return { bech32: 'tb', pubKeyHash: 0x6f, scriptHash: 0xc4 };
   //if (network === 'regtest') return { bech32: 'bcrt', pubKeyHash: 0x6f, scriptHash: 0xc4 };

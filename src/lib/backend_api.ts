@@ -1,45 +1,29 @@
-import { CONFIG } from '$lib/config';
 import type { DaoTemplate } from '$types/local_types';
-
-export async function fetchStacksInfo() {
-  const path = `${CONFIG.VITE_API_STACKS}/v2/info`;
-  const response = await fetch(path);
-  const res = await response.json();
-  return res;
-}
-
-export async function getPoxInfo() {
-  const path = `${CONFIG.VITE_API_STACKS}/v2/pox`;
-  const response = await fetch(path);
-  const res = await response.json();
-  return res;
-}
-
-export async function fetchExchangeRates() {
-  const path = `${CONFIG.VITE_API_STXECO}/bridge-api/v1/btc/tx/rates`;
-  try {
-    const response = await fetch(path);
-    const res = await response.json();
-    return res;
-  } catch(err) {
-    return undefined;
-  }
-}
+import { deployer_roles } from './dao_helper';
+import { getConfig } from '$stores/store_helpers';
 
 export async function launchDao(template:DaoTemplate) {
-    const path = `${CONFIG.VITE_API_BACKEND}/dao/v1/launch`;
-    const response = await fetch(path, {
-      method: 'POST',
-      headers:  { 'Content-Type': 'application/json', 'Authorization': '' },
-      body: JSON.stringify(template)
-    });
-  
-    if (response.status !== 200) {
-      return {
-        error: 'Error broadcasting',
-        status: response.status
-      }
+  const path = `${getConfig().VITE_API_BACKEND}/dao/v1/launch`;
+  const response = await fetch(path, {
+    method: 'POST',
+    headers:  { 'Content-Type': 'application/json', 'Authorization': '' },
+    body: JSON.stringify(template)
+  });
+
+  if (response.status !== 200) {
+    return {
+      error: 'Error broadcasting',
+      status: response.status
     }
-    return await response.json();
   }
-  
+  return await response.json();
+}
+
+export async function constructDao(address:string) {
+  console.log(JSON.stringify(deployer_roles))
+  const path = `${getConfig().VITE_API_BACKEND}/dao/v1/construct/${address}`;
+  const response = await fetch(path);
+  const res = await response.json();
+  return res;
+}
+

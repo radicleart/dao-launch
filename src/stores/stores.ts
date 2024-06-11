@@ -1,5 +1,5 @@
 import { persisted } from 'svelte-local-storage-store'
-import type { ExchangeRate, PoxInfo, SbtcUserSettingI, SessionStore, StacksInfo } from '$types/local_types';
+import type { AddressObject, ExchangeRate, PoxInfo, SbtcUserSettingI, SessionStore, StacksInfo } from '$types/local_types';
 
 /** Store for your data. 
 This assumes the data you're pulling back will be an array.
@@ -9,7 +9,8 @@ export const sessionStore = persisted('sessionStore', {
     name: 'webapp',
     loggedIn: false,
     model: undefined,
-    keySets: undefined,
+    balances: undefined,
+    keySets:{} as { [key: string]: AddressObject; },
     userSettings: {} as SbtcUserSettingI, 
     poxInfo: {} as PoxInfo, 
     exchangeRates: {} as Array<ExchangeRate>, 

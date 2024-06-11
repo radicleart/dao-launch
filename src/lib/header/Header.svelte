@@ -6,11 +6,10 @@
 	import { initApplication, loginStacks } from '$lib/stacks_helper'
 	import { logUserOut, loggedIn } from '$lib/stacks_helper'
 	import AccountDropdown from './AccountDropdown.svelte'
-	import { CONFIG, setConfigByUrl } from '$lib/config';
-	import { page } from '$app/stores';
 	import { fmtNumber } from '$lib/utils';
 	import type { AddressObject } from '$types/local_types';
 	import { sessionStore } from '$stores/stores';
+	import { configStore, switchConfig } from '$stores/stores_config';
 
 	const dispatch = createEventDispatcher();
 
@@ -22,11 +21,11 @@
 	}
 
 	const switchNetwork = async () => {
-		let net = CONFIG.VITE_NETWORK;
+		let net = $configStore.VITE_NETWORK;
 		if (net === 'devnet') return
 		if (net === 'mainnet') net = 'testnet';
 		else net = 'mainnet'
-		setConfigByUrl();
+		switchConfig(net);
 		const url = new URL(location.href);
 		if (import.meta.env.MODE === 'simnet') {
 			url.searchParams.set('chain', 'testnet');
@@ -60,7 +59,7 @@
 
 	const doLogout = async () => {
 		logUserOut();
-		$sessionStore.keySets[CONFIG.VITE_NETWORK] = {} as AddressObject;
+		$sessionStore.keySets[$configStore.VITE_NETWORK] = {} as AddressObject;
 		await sessionStore.update(() => $sessionStore)
 		dispatch('login_event');
 		setTimeout(function() {
@@ -105,10 +104,13 @@
 			ulClass="dark:bg-white dark:md:bg-white md:border-0 border border-black flex flex-col p-2 md:p-4 mt-4 md:flex-row md:mt-0 md:text-sm md:!md:space-x-4 sm:justify-end md:text-sand-700 py-2.5 px-2"
 		>
 			<div class="flex">
+				<!--
 				<NavLi nonActiveClass={getNavActiveClass('/results')}><a href="https://stx.eco">Results</a></NavLi>
 				<NavLi nonActiveClass={getNavActiveClass('/insights')}><a href="https://stx.eco/insights">Insights</a></NavLi>
 				<NavLi nonActiveClass={getNavActiveClass('/insights')}><a href="https://stx.eco/sip">SIP Process</a></NavLi>
+				-->
 				<NavLi nonActiveClass={getNavActiveClass('/dao-launch')}><a href={'/dao-launcher'}>DAO Launcher</a></NavLi>
+				<NavLi nonActiveClass={getNavActiveClass('/shop-front')}><a href={'http://localhost:8086/shop-front'}>Shop Front</a></NavLi>
 			</div>
 			</NavUl>
 			<NavUl

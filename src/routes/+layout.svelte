@@ -4,24 +4,26 @@
 	import Header from "$lib/header/Header.svelte";
 	import Footer from "$lib/header/Footer.svelte";
 	import { initApplication, isLegal, loginStacksFromHeader } from "$lib/stacks_helper";
-	import { CONFIG, setConfigByUrl } from '$lib/config';
+	import { configStore } from '$stores/stores_config';
 	import { afterNavigate, beforeNavigate, goto } from "$app/navigation";
 	import { page } from "$app/stores";
 	import { onMount, onDestroy } from 'svelte';
 	import { sessionStore } from '../stores/stores'
 	import { COMMS_ERROR, tsToTime } from '$lib/utils.js'
-	import { fetchStacksInfo, getPoxInfo } from "$lib/backend_api";
 
+	const unsubscribe = configStore.subscribe(() => {});
 	const unsubscribe1 = sessionStore.subscribe(() => {});
 	onDestroy(async () => {
+		unsubscribe()
 		unsubscribe1()
 	})
 
 	let componentKey = 0;
 	let componentKey1 = 0;
 	if (!$page.url.searchParams.has('chain')) $page.url.searchParams.set('chain', 'mainnet')
-	setConfigByUrl();
-	if (!isLegal(location.href)) {
+
+
+  if (!isLegal(location.href)) {
 		goto('/' + '?chain=mainnet')
 	}
 	beforeNavigate((nav) => {
@@ -31,7 +33,7 @@
 			return;
 		}
 		if (!nav.to?.url.searchParams?.has('chain') && $page.url.hostname === 'localhost') {
-			nav.to?.url.searchParams.set('chain', CONFIG.VITE_NETWORK)
+			nav.to?.url.searchParams.set('chain', $configStore.VITE_NETWORK)
 		}
 		console.debug('beforeNavigate: ' + nav.to?.route.id + ' : ' + tsToTime(new Date().getTime()))
 	})
