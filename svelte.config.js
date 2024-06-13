@@ -6,12 +6,6 @@ import { vitePreprocess } from '@sveltejs/vite-plugin-svelte';
 const config = {
 	// Consult https://kit.svelte.dev/docs/integrations#preprocessors
 	// for more information about preprocessors
-	server: {
-		fs: {
-			// Allow serving files from one level up to the project root
-			allow: ['..']
-		}
-	},
 	base: '.',
 	preprocess: [
 		vitePreprocess(),
@@ -26,7 +20,7 @@ const config = {
 		adapter: adapter({ fallback: 'index.html' }),
 		prerender: { entries: ['/'] },
 		paths: {
-			base: '/insights'
+			base: '/launcher'
 		},
 		alias: {
 			// this will match a file

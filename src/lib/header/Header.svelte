@@ -7,7 +7,7 @@
 	import { logUserOut, loggedIn } from '$lib/stacks_helper'
 	import AccountDropdown from './AccountDropdown.svelte'
 	import { fmtNumber } from '$lib/utils';
-	import type { AddressObject } from '$types/local_types';
+	import type { AddressObject } from '@mijoco/stx_helpers/dist/sbtc';
 	import { sessionStore } from '$stores/stores';
 	import { configStore, switchConfig } from '$stores/stores_config';
 

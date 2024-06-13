@@ -1,4 +1,4 @@
-import type { DaoTemplate } from '$types/local_types';
+import type { DaoTemplate } from '@mijoco/stx_helpers/dist/dao';
 import { deployer_roles } from './dao_helper';
 import { getConfig } from '$stores/store_helpers';
 

@@ -5,8 +5,9 @@ import { StacksTestnet, StacksMainnet, StacksMocknet } from '@stacks/network';
 import { AppConfig, UserSession, showConnect, getStacksProvider, type StacksProvider } from '@stacks/connect';
 import { sessionStore } from '$stores/stores';
 import { fetchStacksInfo, fetchExchangeRates, getPoxInfo, getStacksBalances } from './stacks_api';
-import type { AddressObject, ExchangeRate, PoxInfo, SbtcUserSettingI, StacksInfo } from '$types/local_types';
-import { getConfig } from '$stores/store_helpers';
+import { getConfig, getSession } from '$stores/store_helpers';
+import type { AddressObject, ExchangeRate, SbtcUserSettingI } from '@mijoco/stx_helpers/dist/sbtc';
+import type { PoxInfo, StacksInfo } from '@mijoco/stx_helpers/dist/pox';
 
 const appConfig = new AppConfig(['store_write', 'publish_data']);
 export const userSession = new UserSession({ appConfig }); // we will use this export from other files
@@ -67,7 +68,7 @@ export function isLeather() {
 
 export function appDetails() {
 	return {
-		name: 'sattitude.io',
+		name: 'stxeco-launcher',
 		icon: (window) ? window.location.origin + '/img/stx_eco_logo_icon_white.png' : '/img/stx_eco_logo_icon_white.png',
 	}
 }
@@ -214,8 +215,10 @@ export async function initApplication(userSettings?:SbtcUserSettingI) {
 			cryptoFirst: true,
 			denomination: 'USD'
 		}
-		if (loggedIn()) {
-			const balances = await getStacksBalances()
+		let balances:any;
+		const ss = getSession()
+		if (loggedIn() && ss.keySets[getConfig().VITE_NETWORK].stxAddress ) {
+			balances = await getStacksBalances(ss.keySets[getConfig().VITE_NETWORK].stxAddress)
 		}
 	
 		sessionStore.update((conf) => {

@@ -6,10 +6,10 @@
 	import NakamotoBackground from '$lib/ui/NakamotoBackground.svelte';
 	import NakamotoShield from '$lib/ui/NakamotoShield.svelte';
 	import { sessionStore } from '$stores/stores';
-	import type { DaoTemplate } from '$types/local_types';
 	import { onMount } from 'svelte';
 	import { deployer_roles } from '$lib/dao_helper';
 	import { configStore } from '$stores/stores_config';
+	import { type DaoTemplate } from '@mijoco/stx_helpers/dist/dao';
 
   let inited = false;
   let errorMessage:string = '';

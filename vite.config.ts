@@ -17,14 +17,6 @@ export default defineConfig({
 		setupFiles: './tests/utils/setup.ts'
 	},
 	plugins: [sveltekit()],
-	resolve: {
-		alias: {
-			$lib: resolve("src/lib"),
-			$components: resolve("src/lib/components"),
-			$stores: resolve("src/stores"),
-			$types: resolve("src/types"),
-		}
-	},
 	build: {
 		minify: false,
 		rollupOptions: {

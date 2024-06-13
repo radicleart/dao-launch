@@ -10,9 +10,9 @@
 	import { sessionStore } from '$stores/stores'
 	import { fmtSatoshiToBitcoin, fmtMicroToStx, bitcoinBalanceFromMempool } from '$lib/utils'
 	import { disconnect } from '@stacks/connect';
-	import type { AddressObject } from '$types/local_types';
 	import CopyClipboard from '$lib/components/utils/CopyClipboard.svelte';
 	import { configStore } from '$stores/stores_config';
+	import type { AddressObject } from '@mijoco/stx_helpers/dist/sbtc';
 	const dispatch = createEventDispatcher();
 
 	const account:AddressObject = $sessionStore.keySets[$configStore.VITE_NETWORK];

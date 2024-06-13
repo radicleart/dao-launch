@@ -1,10 +1,12 @@
-import * as btc from '@scure/btc-signer';
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import * as secp from '@noble/secp256k1';
+import * as btc from '@scure/btc-signer';
 import { hex } from '@scure/base';
 import { hash160 } from '@stacks/transactions';
 import { hashSha256Sync } from '@stacks/encryption';
-import type { AddressMempoolObject, SbtcClarityEvent } from 'sbtc-bridge-lib';
 import { getConfig } from '$stores/store_helpers';
+import type { SbtcClarityEvent } from '@mijoco/stx_helpers/dist/sbtc'
+import type { AddressMempoolObject } from '@mijoco/stx_helpers/dist/sbtc'
 
 export const COMMS_ERROR = 'Error communicating with the server. Please try later.'
 export const smbp = 900
@@ -49,7 +51,7 @@ export function getAddressFromHashBytes(hashBytes:string, version:string) {
   let btcAddr:string|undefined;
   try {
     const txType = getVersionAsType(version)
-    let outType:any;
+    let outType:unknown;
     if (txType === 'tr') {
       outType = {
         type: getVersionAsType(version),
