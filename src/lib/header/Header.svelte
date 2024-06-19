@@ -109,7 +109,7 @@
 				<NavLi nonActiveClass={getNavActiveClass('/insights')}><a href="https://stx.eco/insights">Insights</a></NavLi>
 				<NavLi nonActiveClass={getNavActiveClass('/insights')}><a href="https://stx.eco/sip">SIP Process</a></NavLi>
 				-->
-				<NavLi nonActiveClass={getNavActiveClass('/dao-launch')}><a href={'/dao-launcher'}>DAO Launcher</a></NavLi>
+				<NavLi nonActiveClass={getNavActiveClass('/dao-launch')}><a href={'/dao-launcher'}>DAO</a></NavLi>
 				<NavLi nonActiveClass={getNavActiveClass('/shop-front')}><a href={'http://localhost:8086/shop-front'}>Shop Front</a></NavLi>
 			</div>
 			</NavUl>

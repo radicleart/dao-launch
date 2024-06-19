@@ -4,7 +4,7 @@ import { c32address, c32addressDecode } from 'c32check';
 import { StacksTestnet, StacksMainnet, StacksMocknet } from '@stacks/network';
 import { AppConfig, UserSession, showConnect, getStacksProvider, type StacksProvider } from '@stacks/connect';
 import { sessionStore } from '$stores/stores';
-import { fetchStacksInfo, fetchExchangeRates, getPoxInfo, getStacksBalances } from './stacks_api';
+import { fetchStacksInfo, fetchExchangeRates, getPoxInfo, getTokenBalances } from './stacks_api';
 import { getConfig, getSession } from '$stores/store_helpers';
 import type { AddressObject, ExchangeRate, SbtcUserSettingI } from '@mijoco/stx_helpers/dist/sbtc';
 import type { PoxInfo, StacksInfo } from '@mijoco/stx_helpers/dist/pox';
@@ -218,7 +218,7 @@ export async function initApplication(userSettings?:SbtcUserSettingI) {
 		let balances:any;
 		const ss = getSession()
 		if (loggedIn() && ss.keySets[getConfig().VITE_NETWORK].stxAddress ) {
-			balances = await getStacksBalances(ss.keySets[getConfig().VITE_NETWORK].stxAddress)
+			balances = await getTokenBalances(ss.keySets[getConfig().VITE_NETWORK].stxAddress)
 		}
 	
 		sessionStore.update((conf) => {

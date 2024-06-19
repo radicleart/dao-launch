@@ -30,7 +30,7 @@ export async function fetchStacksInfo() {
   const res = await response.json();
   return res;
 }
-export async function getStacksBalances(principal:string) {
+export async function getTokenBalances(principal:string) {
   const path = `${getConfig().VITE_API_STACKS}/extended/v1/address/${principal}/balances`;
   const response = await fetch(path);
   const res = await response.json();

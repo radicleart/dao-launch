@@ -126,7 +126,7 @@
 						<span>STX</span>
 					</div>
 					<div class="ml-auto flex items-center">
-						{fmtMicroToStx($sessionStore.keySets[$configStore.VITE_NETWORK].stacksTokenInfo?.stx?.balance || 0.000000)}
+						{fmtMicroToStx($sessionStore.keySets[$configStore.VITE_NETWORK].tokenBalances?.stx?.balance || 0.000000)}
 					</div>
 				</div>
 

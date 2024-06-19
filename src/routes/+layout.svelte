@@ -13,9 +13,9 @@
 	import { getRouterInfo } from "$lib/dao_helper";
 
 	let loggedIn = isLoggedIn();
-	let heights: {stacksHeight:number; bitcoinHeight:number} = {stacksHeight:0, bitcoinHeight:0};
+	let heights: {stacksHeight:string; bitcoinHeight:string} = {stacksHeight:'0', bitcoinHeight:'0'};
 	let account = {stxAddress:'string', cardinal:'string',ordinal:'string',bnsNameInfo: {names: ['mikey']}};
-	let balances = {sbtcBalance:102,cardinalBalance:10,ordinalBalance:7,stacksBalance:5}
+	let balances = {sbtcBalance:'102',cardinalBalance:'10',ordinalBalance:'7',stacksBalance:'5'}
 	
 	let headerLinks =[]
 	const local = $page.url.hostname === 'localhost'
