@@ -45,7 +45,7 @@ export async function getPoxInfo() {
 }
 
 export async function fetchExchangeRates() {
-  const path = `${getConfig().VITE_STACKS_API}/bridge-api/v1/btc/tx/rates`;
+  const path = `${getConfig().VITE_API_STACKS}/bridge-api/v1/btc/tx/rates`;
   try {
     const response = await fetch(path);
     const res = await response.json();
