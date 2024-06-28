@@ -1,4 +1,4 @@
-import type { AddressObject, ExchangeRate, PoxInfo, SbtcUserSettingI, StacksBalance, StacksInfo } from "@mijoco/stx_helpers";
+import type { AddressObject, ExchangeRate, PoxInfo, SbtcUserSettingI, StacksBalance, StacksInfo } from "@mijoco/stx_helpers/dist/index";
 
 export type SessionStore = {
   name: string;

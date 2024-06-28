@@ -3,18 +3,17 @@
 	import { createEventDispatcher } from "svelte";
 	import Brand from './Brand.svelte'
 	import { afterNavigate, goto } from "$app/navigation";
-	import { initApplication, loginStacks } from '$lib/stacks_helper'
-	import { logUserOut, loggedIn } from '$lib/stacks_helper'
 	import AccountDropdown from './AccountDropdown.svelte'
 	import { fmtNumber } from '$lib/utils';
 	import type { AddressObject } from '@mijoco/stx_helpers/dist/sbtc';
 	import { sessionStore } from '$stores/stores';
 	import { configStore, switchConfig } from '$stores/stores_config';
+	import { initApplication, isLoggedIn, loginStacks, logUserOut } from '@mijoco/stx_helpers/dist/index';
 
 	const dispatch = createEventDispatcher();
 
 	const doLogin = async () => {
-		if (loggedIn()) doLogout()
+		if (isLoggedIn()) doLogout()
 		else {
 			await loginStacks(loginCallback);
 		}
@@ -50,7 +49,7 @@
  	}
 
 	const loginCallback = async () => {
-		await initApplication($sessionStore.userSettings)
+		//await initApplication($sessionStore.userSettings)
 		setTimeout(function() {
 			dispatch('login_event');
 			componentKey++;
@@ -87,7 +86,7 @@
 
 	{#key componentKey}
   	<div class="hidden md:flex md:gap-2 md:order-3">
-			{#if loggedIn()}
+			{#if isLoggedIn()}
 				<AccountDropdown on:init_logout={() => doLogout()}/>
 			{:else}
 				<button class="font-mono uppercase inline-flex items-center bg-[#131416] px-4 py-2 text-sm  text-white rounded-lg border border-transparent focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-black-500/50 shrink-0" on:keydown on:click={doLogin}>
@@ -135,7 +134,7 @@
 			</li>
 
 			<NavLi nonActiveClass="md:hidden" class="-ml-2 -mr-3">
-				{#if loggedIn()}
+				{#if isLoggedIn()}
 					<AccountDropdown on:init_logout={() => doLogout()}/>
 				{:else}
 					<button id="connect-wallet" class="block w-full items-center gap-x-1.5 px-4 py-2 bg-[#131416] text-white rounded-lg border border-transparent focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#131416]" on:keydown on:click={doLogin}>

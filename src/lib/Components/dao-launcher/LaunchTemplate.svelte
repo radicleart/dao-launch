@@ -1,6 +1,5 @@
 <script lang="ts">
-	import Placeholder from '$lib/components/utils/Placeholder.svelte';
-	import { constructDao, launchDao } from '$lib/backend_api';
+	import { launchDao } from '$lib/backend_api';
 	import { fetchDataVar, lookupContract } from '$lib/stacks_api';
   import Banner from '$lib/ui/Banner.svelte';
 	import NakamotoBackground from '$lib/ui/NakamotoBackground.svelte';
@@ -9,16 +8,26 @@
 	import { onMount } from 'svelte';
 	import { deployer_roles } from '$lib/dao_helper';
 	import { configStore } from '$stores/stores_config';
-	import { type DaoTemplate } from '@mijoco/stx_helpers/dist/dao';
+	import { type DaoTemplate, type ExtensionType } from '@mijoco/stx_helpers/dist/dao';
+	import { getCurrentProposalLink } from '$lib/proposals';
+	import { Placeholder } from '@mijoco/stx_components';
+	import { getConfig } from '$stores/store_helpers';
+	import { daoStore } from '$stores/stores_dao';
+	import { contractPrincipalCV, PostConditionMode } from '@stacks/transactions';
+	import { getStacksNetwork } from '@mijoco/stx_helpers/dist/index';
+	import { openContractCall } from '@stacks/connect';
 
   let inited = false;
+  let constructed = false
+  const roles = deployer_roles
+
   let errorMessage:string = '';
   let result:string|undefined = undefined;
   const account = $sessionStore.keySets[$configStore.VITE_NETWORK]
-  $: explorerUrl = `${$configStore.VITE_API_STACKS}/txid/${result}?chain=${$configStore.VITE_NETWORK}`;
+  $: explorerUrl = `${$configStore.VITE_STACKS_API}/txid/${result}?chain=${$configStore.VITE_NETWORK}`;
   
   const template:DaoTemplate = {
-    deployer: 'ST3NBRSFKX28FQ2ZJ1MAKX58HKHSDGNV5N7R21XCP',
+    deployer: 'ST1PQHQKV0RJXZFY1DGX8MNSNYVE3VGZJSRTPGZGM',
     projectName: 'project_' + Math.floor(Math.random() * 1000),
     addresses: [],
     tokenName: undefined,
@@ -36,9 +45,31 @@
     template.addresses.push('ST2JHG361ZXG51QTKY2NQCVBPPRRE2KZB1HR05NNC')
   }
 
-  const construct = async(address:string) => {
-    const constructed = await constructDao(address)
+  let txId: string;
+
+  const constructDao = async (addres:string) => {
+    const deployer = addres || getConfig().VITE_DOA_DEPLOYER;
+    const bootstrap = contractPrincipalCV(deployer, 'bdp000-bootstrap')
+    // const bootstrap = contractPrincipalCV(deployer, 'edp010-set-phase1-extensions')
+    await openContractCall({
+      network: getStacksNetwork(getConfig().VITE_NETWORK),
+      postConditions: [],
+      postConditionMode: PostConditionMode.Deny,
+      contractAddress: deployer,
+      contractName: getConfig().VITE_DOA,
+      functionName: 'construct',
+      functionArgs: [bootstrap],
+      onFinish: (data:any) => {
+        txId = data.txId
+        console.log('finished contract call!', data);
+      },
+      onCancel: () => {
+        console.log('popup closed!');
+      }
+    });
   }
+
+//$: constructed = ($daoStore?.extensions?.filter((o:ExtensionType) => o.valid)?.length || 0) > 0 || false;
 
   const launch = async () => {
     let key: keyof typeof template;
@@ -52,16 +83,20 @@
     const result = await launchDao(template)
   }
 
-  const roles = deployer_roles
   onMount(async () => {
     for (let obj of roles) {
-      const c = await lookupContract(`${obj.stx_address}.bitcoin-dao`) 
-      if (c && c.tx_id) {
-        obj.deployed = true
-        const constructed = await fetchDataVar(template.deployer, 'bitcoin-dao', 'executive')
-        obj.constructed = constructed && constructed.indexOf('.') > -1
-      }
+      try {
+        const c = await lookupContract(`${obj.stx_address}.bitcoin-dao`) 
+        if (c && c.tx_id) {
+          obj.deployed = true
+            const constructed = await fetchDataVar(template.deployer, 'bitcoin-dao', 'executive')
+            obj.constructed = typeof constructed !== undefined
+        }
+      } catch(err:any) {}
     }
+    //constructed = await fetchDataVar(getConfig().VITE_DOA_DEPLOYER, 'bitcoin-dao', 'executive')
+    //const depl = roles.find((o:any) => o.stx_address === getConfig().VITE_DOA_DEPLOYER)
+    //if (depl) depl.constructed = constructed
     inited = true
   })
 
@@ -90,20 +125,20 @@
                 <div class="w-full flex flex-col gap-y-4 justify-start border border-gray-700 rounded-lg my-4 p-3">
                   {#each roles as role}
                   {#if role.deployed}
-                  <div>
+                  <div class="flex flex-col gap-y-4">
                     <div class="">
-                      Contract: {role.stx_address} 
+                      Contract deployed {#if role.constructed}and constructed{/if}
                     </div>
+                    <div class="">
+                      {role.stx_address + '.bitcoin-dao'} 
+                    </div>
+                    {#if !role.constructed}
                     <div>
-                      is deployed 
-                      {#if role.constructed}
-                      and constructed
-                      {:else}
-                      <button on:click={() => {errorMessage = ''; construct(role.stx_address)}} class="justify-center w-[150px] md:inline-flex items-center gap-x-1.5 bg-success-01 px-4 py-2 rounded-xl border border-black bg-black text-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary-500/50">
+                      <button on:click={() => {errorMessage = ''; constructDao(role.stx_address)}} class="justify-center w-[150px] md:inline-flex items-center gap-x-1.5 bg-success-01 px-4 py-2 rounded-xl border border-black bg-black text-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary-500/50">
                         START DAO
                       </button>
-                      {/if}
                     </div>
+                    {/if}
                   </div>
                   {/if}
                 {/each}
@@ -183,6 +218,6 @@
   </div>
   </div>
   {:else}
-    <Placeholder />
+  <Placeholder message={'holdingMessage'} link={getCurrentProposalLink()}/>
   {/if}
 </div>

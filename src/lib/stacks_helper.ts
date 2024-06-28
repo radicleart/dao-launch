@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-
+/**
 import { c32address, c32addressDecode } from 'c32check';
 import { StacksTestnet, StacksMainnet, StacksMocknet } from '@stacks/network';
 import { AppConfig, UserSession, showConnect, getStacksProvider, type StacksProvider } from '@stacks/connect';
@@ -282,4 +282,4 @@ function defaultExchangeRate():ExchangeRate {
 		name: 'BTCUSD'			  
 	}
   }
-  
+   */

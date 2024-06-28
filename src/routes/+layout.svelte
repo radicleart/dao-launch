@@ -1,46 +1,49 @@
 <script lang="ts">
 	//import '../app.postcss';
 	import "../app.css";
-	import { Header, Footer } from "@mijoco/stx_components";
-	import { initApplication, isLegal } from "$lib/stacks_helper";
-	import { isLoggedIn, logUserOut, loginStacks, loginStacksFromHeader } from '@mijoco/stx_helpers/dist/account'
-	import { configStore } from '$stores/stores_config';
+	import { initAddresses, initApplication, isLegal, isLoggedIn, logUserOut, loginStacks } from '@mijoco/stx_helpers/dist/account'
+	import { configStore, setConfigByUrl } from '$stores/stores_config';
 	import { afterNavigate, beforeNavigate, goto } from "$app/navigation";
 	import { page } from "$app/stores";
 	import { onMount, onDestroy } from 'svelte';
 	import { sessionStore } from '../stores/stores'
 	import { COMMS_ERROR, tsToTime } from '$lib/utils.js'
-	import { getRouterInfo } from "$lib/dao_helper";
+	import { getConfig } from "$stores/store_helpers";
+	import { fetchExchangeRates } from "$lib/stacks_api";
+	import { getCurrentProposalLink, isExecutiveTeamMember } from "$lib/proposals";
+	import { fetchStacksInfo } from "@mijoco/stx_helpers/dist/index";
+	import HeaderFromComponents from "$lib/header/HeaderFromComponents.svelte";
+	import { Placeholder, StxEcoFooter } from "@mijoco/stx_components";
+	import type { SessionStore } from "$types/local_types";
+	import type { CurrentProposal, DaoStore } from "@mijoco/stx_helpers/dist/index";
+	import { daoStore } from "$stores/stores_dao";
 
 	let loggedIn = isLoggedIn();
-	let heights: {stacksHeight:string; bitcoinHeight:string} = {stacksHeight:'0', bitcoinHeight:'0'};
-	let account = {stxAddress:'string', cardinal:'string',ordinal:'string',bnsNameInfo: {names: ['mikey']}};
-	let balances = {sbtcBalance:'102',cardinalBalance:'10',ordinalBalance:'7',stacksBalance:'5'}
-	
-	let headerLinks =[]
-	const local = $page.url.hostname === 'localhost'
-
-	headerLinks.push(getRouterInfo('voting', local))
-	headerLinks.push(getRouterInfo('insights', local))
-	headerLinks.push(getRouterInfo('launcher', local))
-	//headerLinks.push(getRouterInfo('shop', local))
-
-	const unsubscribe = configStore.subscribe(() => {});
+	$: storesReady = false
 	const unsubscribe1 = sessionStore.subscribe(() => {});
+	const unsubscribe2 = daoStore.subscribe(() => {});
+	const unsubscribe3 = configStore.subscribe(() => {});
 	onDestroy(async () => {
-		unsubscribe()
 		unsubscribe1()
+		unsubscribe2()
+		unsubscribe3()
 	})
 
 	let componentKey = 0;
 	let componentKey1 = 0;
-	if (!$page.url.searchParams.has('chain')) $page.url.searchParams.set('chain', 'mainnet')
 
-
+	setConfigByUrl($page.url.searchParams);
   	if (!isLegal(location.href)) {
 		goto('/' + '?chain=mainnet')
 	}
 	beforeNavigate(async (nav) => {
+		if (!nav.to?.route.id || nav.to?.route.id === '') {
+			nav.cancel();
+			nav.to?.url.searchParams.set('chain', $configStore.VITE_NETWORK)
+			if (getConfig().VITE_NETWORK === 'devnet') {
+				window.location.replace('http://localhost:8080?chain=devnet')
+			}
+		}
 		if (!isLegal(nav.to?.route.id || '')) {
 			nav.cancel();
 			await loginEvent()
@@ -56,7 +59,7 @@
 		console.debug('afterNavigate: ' + nav.to?.route.id + ' : ' + tsToTime(new Date().getTime()))
 	})
 	let inited = false;
-	let errorReason:string|undefined;
+	let holdingMessage:string = 'loading data';
 
 	const loginEvent = async (e?:any) => {
 		console.log('update for login', e.target)
@@ -84,7 +87,16 @@
 	}
 
 	const initApp = async () => {
-		await initApplication($sessionStore.userSettings);
+		await initAddresses(getConfig().VITE_NETWORK, sessionStore);
+		const exchangeRates = await fetchExchangeRates();
+		await initApplication(getConfig().VITE_STACKS_API, getConfig().VITE_MEMPOOL_API, getConfig().VITE_NETWORK, sessionStore, exchangeRates, getConfig().VITE_SBTC_CONTRACT_ID)
+
+		const emTeamMam = await isExecutiveTeamMember($sessionStore.keySets[getConfig().VITE_NETWORK].stxAddress);
+		
+		sessionStore.update((conf:SessionStore) => {
+			conf.userSettings.executiveTeamMember = emTeamMam?.executiveTeamMember || false
+			return conf;
+		})
 	}
 
 	let timer:any;
@@ -93,23 +105,48 @@
 		clearInterval(timer)
 	})
 
+	const startTimer = () => {
+		timer = setInterval(async () => {
+			const stacksInfo = await fetchStacksInfo(getConfig().VITE_STACKS_API);
+			sessionStore.update((conf) => {
+				conf.stacksInfo = stacksInfo
+				//conf.poxInfo = poxInfo
+				return conf;
+			});
+		}, 120000)
+	}
+
 	onMount(async () => {
 		try {
+			storesReady = true
+
 			await initApp();
 			inited = true;
+
+			//await connectToStacks();
+			//subscribeBlockUpdates();
+			startTimer();
 		} catch (err) {
-			errorReason = COMMS_ERROR
+			holdingMessage = COMMS_ERROR
 			console.log(err)
 		}
 	})
 </script>
 
 <div class="bg-white min-h-screen relative">
-	{#if inited}
-	<Header {headerLinks} {loggedIn} {heights} {account} {balances} on:do_login={loginEvent} on:do_logout={logoutEvent} on:do_copy={copyEvent} on:switch_network={networkSwitchEvent}/>
+	{#if storesReady}<HeaderFromComponents/>{/if}
 	<div class="mx-auto px-6 relative">
+		{#if inited}
+		{#key componentKey}
 			<slot></slot>
+		{/key}
+		{:else}
+		<div class="py-4 mx-auto max-w-7xl md:px-6">
+			<div class="flex flex-col w-full my-8">
+				<Placeholder message={holdingMessage} link={getCurrentProposalLink()}/>
+			</div>
+		</div>
+		{/if}
 	</div>
-	<Footer />
-	{/if}
+	<StxEcoFooter />
 </div>

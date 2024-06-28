@@ -4,7 +4,6 @@
 	import LogoSBTC from '$lib/ui/LogoSBTC.svelte';
 	import LogoBitcoin from '$lib/ui/LogoBitcoin.svelte';
 	import StacksIcon from '$lib/ui/StacksIcon.svelte';
-	import { makeFlash } from "$lib/stacks_helper";
 	import { createEventDispatcher } from "svelte";
 	import { truncate } from '$lib/utils'
 	import { sessionStore } from '$stores/stores'
@@ -13,6 +12,7 @@
 	import CopyClipboard from '$lib/components/utils/CopyClipboard.svelte';
 	import { configStore } from '$stores/stores_config';
 	import type { AddressObject } from '@mijoco/stx_helpers/dist/sbtc';
+	import { makeFlash } from '@mijoco/stx_helpers/dist/index';
 	const dispatch = createEventDispatcher();
 
 	const account:AddressObject = $sessionStore.keySets[$configStore.VITE_NETWORK];

@@ -1,9 +1,10 @@
 import type { DaoTemplate } from '@mijoco/stx_helpers/dist/dao';
 import { deployer_roles } from './dao_helper';
 import { getConfig } from '$stores/store_helpers';
+import { openContractCall } from '@stacks/connect';
 
 export async function launchDao(template:DaoTemplate) {
-  const path = `${getConfig().VITE_API_BACKEND}/dao/v1/launch`;
+  const path = `${getConfig().VITE_BRIDGE_API}/dao/v1/launch`;
   const response = await fetch(path, {
     method: 'POST',
     headers:  { 'Content-Type': 'application/json', 'Authorization': '' },
@@ -19,11 +20,10 @@ export async function launchDao(template:DaoTemplate) {
   return await response.json();
 }
 
-export async function constructDao(address:string) {
+export async function constructDao1(address:string) {
   console.log(JSON.stringify(deployer_roles))
-  const path = `${getConfig().VITE_API_BACKEND}/dao/v1/construct/${address}`;
+  const path = `${getConfig().VITE_BRIDGE_API}/dao/v1/construct/${address}`;
   const response = await fetch(path);
   const res = await response.json();
   return res;
 }
-

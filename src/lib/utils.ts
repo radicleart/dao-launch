@@ -7,10 +7,25 @@ import { hashSha256Sync } from '@stacks/encryption';
 import { getConfig } from '$stores/store_helpers';
 import type { SbtcClarityEvent } from '@mijoco/stx_helpers/dist/sbtc'
 import type { AddressMempoolObject } from '@mijoco/stx_helpers/dist/sbtc'
+import type { HeaderLink } from '@mijoco/stx_helpers/dist/index';
 
 export const COMMS_ERROR = 'Error communicating with the server. Please try later.'
 export const smbp = 900
 export const xsbp = 700
+
+export function getRouterInfo(headerLinks:Array<HeaderLink>, routeId:string) {
+  const link = getConfig().VITE_HEADER_LINKS.find((o) => routeId === o.name)
+  if (link) {
+    link.href += '?chain=devnet'
+    headerLinks.push(link)
+  }
+  return link;
+}
+export function fmtNumberStacksFloor(amount:number|undefined) {
+  if (!amount || amount === 0) return '0';
+  return fmtNumber(Math.floor(Number(fmtMicroToStx(amount))))
+}
+
 
 export function parseHTML(htmlString:string) {
   const parser = new DOMParser();
@@ -197,7 +212,7 @@ export function fmtAmount(amount:number, currency:string) {
 }
 
 export function fmtNumber(amount:number|undefined) {
-  if (amount === 0) return 0;
+  if (amount === 0) return '0';
   if (amount) return new Intl.NumberFormat().format(amount);
 }
 

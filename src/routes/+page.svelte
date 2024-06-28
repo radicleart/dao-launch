@@ -2,7 +2,10 @@
 	import ProposalStageUpdate from "$lib/components/utils/ProposalStageUpdate.svelte";
 	import PageIntro from "$lib/components/utils/PageIntro.svelte";
 	import { onMount } from "svelte";
+	import { goto } from "$app/navigation";
+	import { page } from "$app/stores";
 	
+	goto($page.url)
 	let message = 'STX ECO DAO Launcher gets you up and running in minutes with your very web 3 store or marketplace.';
 	const pageTitle = 'Getting started'
 

@@ -1,18 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
 
-export function getRouterInfo(routeId:string, local:boolean) {
-	if (routeId === 'voting') {
-		return {name: '/voting', href: (local) ? 'http://localhost:8080' : 'https://stx.eco', display: 'Voting', target:'_self'}
-	} else if (routeId === 'insights') {
-		return {name: '/insights', href: (local) ? 'http://localhost:8082/insights' : 'https://stx.eco/insights', display: 'Insights', target:'_self'}
-	} else if (routeId === 'launcher') {
-		return {name: '/dao-launcher', href: (local) ? '/launcher/dao-launcher' : 'https://stx.eco/launcher', display: 'DAO Launcher', target:'_self'}
-	} else if (routeId === 'shop') {
-		return {name: '/shop-front', href: 'http://localhost:8086/shop-front', display: 'Shop Front', target:'_self'}
-	}
-}
-
 export const deployer_roles = [
 	{
 		secret_key: '753b7cc01a1a2e86221266a154af739463fce51219d97e4f856cd7200c3bd2a601',
