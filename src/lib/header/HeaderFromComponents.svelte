@@ -7,6 +7,7 @@
 	import { isCoordinator } from "$lib/proposals";
 	import type { HeaderLink } from "@mijoco/stx_helpers/dist/index";
 	import { getConfig } from "$stores/store_helpers";
+	import { page } from "$app/stores";
 
 	const dispatch = createEventDispatcher();
 	const keys = ($sessionStore.keySets) ? $sessionStore.keySets[getConfig()?.VITE_NETWORK] : undefined;

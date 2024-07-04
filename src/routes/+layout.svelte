@@ -34,7 +34,7 @@
 
 	setConfigByUrl($page.url.searchParams);
   	if (!isLegal(location.href)) {
-		goto('/' + '?chain=mainnet')
+		goto('/')
 	}
 	beforeNavigate(async (nav) => {
 		if (!nav.to?.route.id || nav.to?.route.id === '') {

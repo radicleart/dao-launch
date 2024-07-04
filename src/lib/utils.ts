@@ -14,8 +14,9 @@ export const smbp = 900
 export const xsbp = 700
 
 export function getRouterInfo(headerLinks:Array<HeaderLink>, routeId:string) {
-  const link = getConfig().VITE_HEADER_LINKS.find((o) => routeId === o.name)
+  const link = getConfig().VITE_HEADER_LINKS?.find((o) => routeId === o.name) || undefined
   if (link) {
+    
     link.href += '?chain=devnet'
     headerLinks.push(link)
   }

@@ -52,7 +52,7 @@
     	<div>
 			<div class="space-y-6">
 				<div>
-					<ProposalStageUpdate />
+					<ProposalStageUpdate  />
 					<!-- <span class="font-mono inline-block py-1 text-sm px-3 rounded-full text-[#131416]/[64%] uppercase tracking-wider border border-[#131416]/[12%]">Current proposal</span> -->
 					<h1 class="text-[#0A0A0B] text-2xl sm:text-4xl sm:-mx-4 mt-6">
 						<a href="/dao-launcher" class="py-2 px-4 rounded-md" target="">
